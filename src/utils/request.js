@@ -48,7 +48,7 @@ service.interceptors.response.use(
         // if the custom code is not 20000, it is judged as an error.
         if (res.code !== 200) {
             Message({
-                message: res.message || 'Error',
+                message: res.msg || 'Error',
                 type: 'error',
                 duration: 5 * 1000
             })
@@ -56,17 +56,20 @@ service.interceptors.response.use(
             // 508: Illegal token; 512: Other clients logged in; 514: Token expired;
             if (res.code === 508 || res.code === 512 || res.code === 514) {
                 // to re-login
-                MessageBox.confirm('You have been logged out, you can cancel to stay on this page, or log in again', 'Confirm logout', {
-                    confirmButtonText: 'Re-Login',
-                    cancelButtonText: 'Cancel',
-                    type: 'warning'
-                }).then(() => {
+                MessageBox.confirm(
+                    'You have been logged out, you can cancel to stay on this page, or log in again',
+                    'Confirm logout', {
+                        confirmButtonText: 'Re-Login',
+                        cancelButtonText: 'Cancel',
+                        type: 'warning'
+                    }
+                ).then(() => {
                     store.dispatch('user/resetToken').then(() => {
                         location.reload()
                     })
                 })
             }
-            return Promise.reject(new Error(res.message || 'Error'))
+            return Promise.reject(new Error(res.msg || 'Error'))
         } else {
             return res
         }
@@ -74,7 +77,7 @@ service.interceptors.response.use(
     error => {
         console.log('err' + error) // for debug
         Message({
-            message: error.message,
+            message: error || 'Error',
             type: 'error',
             duration: 5 * 1000
         })
