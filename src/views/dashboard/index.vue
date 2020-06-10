@@ -1,14 +1,6 @@
 <template>
 	<div class="dashboard-container">
-		<div class=" clearfix">
-			<pan-thumb :image="avatar" style="float: left">
-				Your roles: admin
-			</pan-thumb>
-			<div class="dashboard-text">
-				<p>welcome</p>
-				<p>{{ name }}</p>
-			</div>
-		</div>
+		<!-- <div class="dashboard-text">{{ name }}</div> -->
 		<div class="dashboard-img">
 			<img :src="emptyGif" class="emptyGif" />
 		</div>
@@ -17,11 +9,9 @@
 
 <script>
 import { mapGetters } from 'vuex'
-import PanThumb from '@/components/PanThumb'
 
 export default {
 	name: 'Dashboard',
-	components: { PanThumb },
 	data() {
 		return {
 			emptyGif:
@@ -29,7 +19,7 @@ export default {
 		}
 	},
 	computed: {
-		...mapGetters(['name', 'avatar'])
+		...mapGetters(['name'])
 	}
 }
 </script>
@@ -44,7 +34,6 @@ export default {
 	}
 	&-text {
 		font-size: 30px;
-		margin-left: 190px;
 		height: 150px;
 		line-height: 50px;
 	}
@@ -52,7 +41,7 @@ export default {
 		.emptyGif {
 			display: block;
 			width: 45%;
-			margin: 0 auto;
+			margin: 5% auto;
 		}
 	}
 }
