@@ -1,97 +1,168 @@
 <template>
 	<div class="app-container">
-		<el-form ref="form" :model="form" label-width="120px">
-			<el-form-item label="系统名称" label-width="120px">
-				<el-input v-model="form.name" label-width="120px" />
-			</el-form-item>
-			<el-form-item label="Activity zone">
-				<el-select
-					v-model="form.region"
-					placeholder="please select your zone"
-				>
-					<el-option label="Zone one" value="shanghai" />
-					<el-option label="Zone two" value="beijing" />
-				</el-select>
-			</el-form-item>
-			<el-form-item label="Activity time">
-				<el-col :span="11">
-					<el-date-picker
-						v-model="form.date1"
-						type="date"
-						placeholder="Pick a date"
-						style="width: 100%;"
-					/>
-				</el-col>
-				<el-col :span="2" class="line">-</el-col>
-				<el-col :span="11">
-					<el-time-picker
-						v-model="form.date2"
-						type="fixed-time"
-						placeholder="Pick a time"
-						style="width: 100%;"
-					/>
-				</el-col>
-			</el-form-item>
-			<el-form-item label="Instant delivery">
-				<el-switch v-model="form.delivery" />
-			</el-form-item>
-			<el-form-item label="Activity type">
-				<el-checkbox-group v-model="form.type">
-					<el-checkbox label="Online activities" name="type" />
-					<el-checkbox label="Promotion activities" name="type" />
-					<el-checkbox label="Offline activities" name="type" />
-					<el-checkbox label="Simple brand exposure" name="type" />
-				</el-checkbox-group>
-			</el-form-item>
-			<el-form-item label="Resources">
-				<el-radio-group v-model="form.resource">
-					<el-radio label="Sponsor" />
-					<el-radio label="Venue" />
-				</el-radio-group>
-			</el-form-item>
-			<el-form-item label="Activity form">
-				<el-input v-model="form.desc" type="textarea" />
-			</el-form-item>
-			<el-form-item>
-				<el-button type="primary" @click="onSubmit">Create</el-button>
-				<el-button @click="onCancel">Cancel</el-button>
-			</el-form-item>
-		</el-form>
+		<el-table
+			v-loading="listLoading"
+			:data="list"
+			element-loading-text="Loading"
+			border
+			fit
+			highlight-current-row
+		>
+			<el-table-column type="expand">
+				<template slot-scope="props">
+					<el-form
+						label-position="left"
+						inline
+						class="demo-table-expand"
+					>
+						<el-form-item label="慢页面加载阀值">
+							<span>{{ props.row.slowPageTime }}s</span>
+						</el-form-item>
+
+						<el-form-item label="JS慢资源阀值">
+							<span>{{ props.row.slowJsTime }}s</span>
+						</el-form-item>
+
+						<el-form-item label="CSS慢资源阀值">
+							<span>{{ props.row.slowCssTime }}s</span>
+						</el-form-item>
+
+						<el-form-item label="IMG慢资源阀值">
+							<span>{{ props.row.slowImgTime }}s</span>
+						</el-form-item>
+
+						<el-form-item label="AJAX慢资源阀值">
+							<span>{{ props.row.slowAajxTime }}s</span>
+						</el-form-item>
+					</el-form>
+				</template>
+			</el-table-column>
+
+			<el-table-column align="center" label="ID" width="80">
+				<template slot-scope="scope">
+					{{ scope.row.id }}
+				</template>
+			</el-table-column>
+			<el-table-column label="系统名称" align="left">
+				<template slot-scope="scope">
+					{{ scope.row.name }}
+				</template>
+			</el-table-column>
+			<el-table-column label="系统域名" align="left">
+				<template slot-scope="scope">
+					<span>{{ scope.row.domain }}</span>
+				</template>
+			</el-table-column>
+
+			<el-table-column label="AppId系统标识" align="left" name="directly">
+				<template slot-scope="scope">
+					<span class="appid">{{ scope.row.appId }}</span>
+					<el-button
+						size="mini"
+						type="primary"
+						plain
+						@click="showAppid(scope.row.appId, $event)"
+					>
+						点击复制
+					</el-button>
+				</template>
+			</el-table-column>
+
+			<el-table-column
+				align="left"
+				prop="created_at"
+				label="创建时间"
+				width="200"
+			>
+				<template slot-scope="scope">
+					<i class="el-icon-time" />
+					<span>{{ scope.row.createTime }}</span>
+				</template>
+			</el-table-column>
+		</el-table>
+		<pagination
+			v-show="total > 0 && !listLoading"
+			:total="total"
+			:page.sync="listQuery.page"
+			:limit.sync="listQuery.limit"
+			@pagination="fetchData"
+		/>
 	</div>
 </template>
-
+<style scoped>
+.demo-table-expand {
+	font-size: 0;
+}
+.demo-table-expand label {
+	width: 120px;
+	color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+	margin-right: 0;
+	margin-bottom: 0;
+	width: 30%;
+}
+.app-container .appid {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 1;
+}
+</style>
 <script>
+import { getList } from '@/api/system'
+import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import clip from '@/utils/clipboard' // use clipboard directly
+
 export default {
+	name: 'ListError',
+	components: { Pagination },
+	filters: {
+		statusFilter(status) {
+			const statusMap = {
+				Info: 'success',
+				Warning: 'warning',
+				Error: 'danger'
+			}
+			return statusMap[status]
+		}
+	},
 	data() {
 		return {
-			form: {
-				name: '',
-				region: '',
-				date1: '',
-				date2: '',
-				delivery: false,
-				type: [],
-				resource: '',
-				desc: ''
+			list: null,
+			listLoading: true,
+			total: 0,
+			listQuery: {
+				page: 1,
+				limit: 10,
+				importance: undefined,
+				title: undefined,
+				type: undefined,
+				sort: '+id'
 			}
 		}
 	},
+	created() {
+		this.fetchData()
+	},
 	methods: {
-		onSubmit() {
-			this.$message('submit!')
-		},
-		onCancel() {
-			this.$message({
-				message: 'cancel!',
-				type: 'warning'
+		fetchData() {
+			this.listLoading = true
+			getList(this.listQuery).then(response => {
+				this.list = response.data.item
+				this.total = response.data.total
+				console.log(this.list)
+
+				// Just to simulate the time of the request
+				setTimeout(() => {
+					this.listLoading = false
+				}, 1.5 * 1000)
 			})
+		},
+		showAppid(appId, event) {
+			clip(appId, event)
 		}
 	}
 }
 </script>
-
-<style scoped>
-.line {
-	text-align: center;
-}
-</style>

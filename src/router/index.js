@@ -61,16 +61,16 @@ export const constantRoutes = [{
     },
 
     {
-        path: '/example',
+        path: '/datamonitor',
         component: Layout,
-        redirect: '/example/table',
-        name: 'Example',
+        redirect: '/datamonitor/weberror',
+        name: 'Datamonitor',
         meta: { title: '数据监控', icon: 'example' },
         children: [{
-                path: 'table',
-                name: 'Table',
+                path: 'weberror',
+                name: 'Weberror',
                 component: () =>
-                    import ('@/views/table/index'),
+                    import ('@/views/datamonitor/weberror'),
                 meta: { title: '异常监控', icon: 'table' }
             },
             {

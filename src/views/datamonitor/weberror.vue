@@ -8,24 +8,83 @@
 			fit
 			highlight-current-row
 		>
+			<el-table-column type="expand">
+				<template slot-scope="props">
+					<el-form
+						label-position="left"
+						inline
+						class="demo-table-expand"
+					>
+						<el-form-item label="错误信息">
+							<span>{{ props.row.msg }}</span>
+						</el-form-item>
+
+						<el-form-item label="错误资源URL">
+							<span>{{ props.row.resourceUrl }}</span>
+						</el-form-item>
+
+						<el-form-item
+							v-if="props.row.line"
+							label="“错误所在行数”"
+						>
+							<span>{{ props.row.line }}</span>
+						</el-form-item>
+						<el-form-item
+							v-if="props.row.col"
+							label="“错误所在列数"
+						>
+							<span>{{ props.row.col }}</span>
+						</el-form-item>
+						<el-form-item label="请求类型">
+							<span>{{ props.row.method }}</span>
+						</el-form-item>
+
+						<el-form-item label="所属系统ID">
+							<span>{{ props.row.systemId }}</span>
+						</el-form-item>
+
+						<el-form-item label="自定义信息">
+							<span>{{ props.row.extendsInfo }}</span>
+						</el-form-item>
+
+						<el-form-item label="设备信息">
+							<span>{{ props.row.deviceInfo }}</span>
+						</el-form-item>
+					</el-form>
+				</template>
+			</el-table-column>
 			<el-table-column align="center" label="ID" width="80">
 				<template slot-scope="scope">
 					{{ scope.row.id }}
 				</template>
 			</el-table-column>
-			<el-table-column label="Msg">
+			<el-table-column label="错误信息">
 				<template slot-scope="scope">
-					{{ scope.row.msg }}
+					<span class="error-msg">{{ scope.row.msg }}</span>
 				</template>
 			</el-table-column>
-			<el-table-column label="Origin" align="center">
+
+			<el-table-column label="Http状态码" width="100" align="center">
+				<template slot-scope="scope">
+					{{ scope.row.status || '无' }}
+				</template>
+			</el-table-column>
+
+			<el-table-column label="所属域名">
 				<template slot-scope="scope">
 					<span>{{ scope.row.origin }}</span>
 				</template>
 			</el-table-column>
+
+			<el-table-column label="来源URL">
+				<template slot-scope="scope">
+					<span>{{ scope.row.referer }}</span>
+				</template>
+			</el-table-column>
+
 			<el-table-column
 				class-name="status-col"
-				label="LogType"
+				label="日志级别"
 				width="110"
 				align="center"
 			>
@@ -35,7 +94,7 @@
 					}}</el-tag>
 				</template>
 			</el-table-column>
-			<el-table-column label="Category" width="110" align="center">
+			<el-table-column label="错误类型" width="110" align="center">
 				<template slot-scope="scope">
 					{{ scope.row.category }}
 				</template>
@@ -43,7 +102,7 @@
 			<el-table-column
 				align="center"
 				prop="created_at"
-				label="CreateTime"
+				label="创建时间"
 				width="200"
 			>
 				<template slot-scope="scope">
@@ -53,7 +112,7 @@
 			</el-table-column>
 		</el-table>
 		<pagination
-			v-show="total > 0"
+			v-show="total > 0 && !listLoading"
 			:total="total"
 			:page.sync="listQuery.page"
 			:limit.sync="listQuery.limit"
@@ -61,7 +120,27 @@
 		/>
 	</div>
 </template>
-
+<style scoped>
+.demo-table-expand {
+	font-size: 0;
+}
+.demo-table-expand label {
+	width: 100px;
+	color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+	margin-right: 0;
+	margin-bottom: 0;
+	width: 80%;
+}
+.app-container .error-msg {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+</style>
 <script>
 import { getList } from '@/api/table'
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination

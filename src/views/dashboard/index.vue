@@ -1,6 +1,6 @@
 <template>
 	<div class="dashboard-container">
-		<div class="dashboard-text">Hi，{{ name }}</div>
+		<div class="dashboard-text">hi，{{ name }}</div>
 		<div class="dashboard-img">
 			<img :src="emptyGif" class="emptyGif" />
 		</div>

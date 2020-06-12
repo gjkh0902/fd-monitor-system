@@ -8,19 +8,19 @@
 			label-width="150px"
 			element-loading-text="Loading"
 		>
-			<el-form-item label="系统名称">
-				<el-input v-model="form.name" prop="name" class="el-text" />
+			<el-form-item label="系统名称" prop="name">
+				<el-input v-model="form.name" class="el-text" />
 			</el-form-item>
 
-			<el-form-item label="系统对应域名">
-				<el-input v-model="form.domain" prop="domain" class="el-text">
+			<el-form-item label="系统对应域名" prop="domain">
+				<el-input v-model="form.domain" class="el-text">
 					<template slot="prepend">
 						http://
 					</template>
 				</el-input>
 			</el-form-item>
 
-			<el-form-item label="页面加载阀值">
+			<el-form-item label="页面加载阀值" prop="slowPageTime">
 				<el-input v-model="form.slowPageTime" class="el-text">
 					<template slot="append">
 						(单位：s)
@@ -28,7 +28,7 @@
 				</el-input>
 			</el-form-item>
 
-			<el-form-item label="JS慢资源加载阀值">
+			<el-form-item label="JS慢资源加载阀值" prop="slowJsTime">
 				<el-input v-model="form.slowJsTime" class="el-text">
 					<template slot="append">
 						(单位：s)
@@ -36,7 +36,7 @@
 				</el-input>
 			</el-form-item>
 
-			<el-form-item label="CSS慢资源加载阀值">
+			<el-form-item label="CSS慢资源加载阀值" prop="slowCssTime">
 				<el-input v-model="form.slowCssTime" class="el-text">
 					<template slot="append">
 						(单位：s)
@@ -44,7 +44,7 @@
 				</el-input>
 			</el-form-item>
 
-			<el-form-item label="IMG慢资源加载阀值">
+			<el-form-item label="IMG慢资源加载阀值" prop="slowImgTime">
 				<el-input v-model="form.slowImgTime" class="el-text">
 					<template slot="append">
 						(单位：s)
@@ -52,7 +52,7 @@
 				</el-input>
 			</el-form-item>
 
-			<el-form-item label="AJAX慢资源加载阀值">
+			<el-form-item label="AJAX慢资源加载阀值" prop="slowAajxTime">
 				<el-input v-model="form.slowAajxTime" class="el-text">
 					<template slot="append">
 						(单位：s)
@@ -62,9 +62,9 @@
 
 			<el-form-item>
 				<el-button type="primary" @click="onSubmit('form')">
-					Create
+					提交
 				</el-button>
-				<el-button @click="onCancel">Cancel</el-button>
+				<el-button @click="onCancel('form')">重置</el-button>
 			</el-form-item>
 		</el-form>
 	</div>
@@ -79,11 +79,12 @@ export default {
 			form: {
 				name: '',
 				domain: '',
-				slowPageTime: '',
-				slowJsTime: '',
-				slowCssTime: '',
-				slowImgTime: '',
-				slowAajxTime: ''
+				slowPageTime: 8,
+				slowJsTime: 2,
+				slowCssTime: 1,
+				slowImgTime: 2,
+				slowAajxTime: 2,
+				userId: this.$store.getters.userId || ''
 			},
 			rules: {
 				name: [
@@ -94,8 +95,8 @@ export default {
 					},
 					{
 						min: 2,
-						max: 5,
-						message: '长度在 2 到 5 个字符',
+						max: 10,
+						message: '长度在 2 到 10 个字符',
 						trigger: 'blur'
 					}
 				],
@@ -106,8 +107,15 @@ export default {
 						trigger: 'blur'
 					},
 					{
-						min: 10,
-						message: '长度至少10个字符',
+						min: 8,
+						message: '长度至少8个字符',
+						trigger: 'blur'
+					}
+				],
+				slowPageTime: [
+					{
+						required: true,
+						message: '数据不能为空',
 						trigger: 'blur'
 					}
 				]
@@ -117,10 +125,9 @@ export default {
 	},
 	methods: {
 		onSubmit(formName) {
+			console.log()
 			this.$refs[formName].validate(valid => {
 				if (valid) {
-					console.log(this.form)
-
 					if (this.form.domain) {
 						this.form.domain = 'http://' + this.form.domain
 					}
@@ -133,19 +140,23 @@ export default {
 						// Just to simulate the time of the request
 						setTimeout(() => {
 							this.addLoading = false
+							this.$message({
+								message: '添加成功!',
+								type: 'success'
+							})
 						}, 1.5 * 1000)
 					})
 				} else {
-					console.log('error submit!!')
+					this.$message({
+						message: '请检查输入项是否符合要求!',
+						type: 'warning'
+					})
 					return false
 				}
 			})
 		},
-		onCancel() {
-			this.$message({
-				message: 'cancel!',
-				type: 'warning'
-			})
+		onCancel(formName) {
+			this.$refs[formName].resetFields()
 		}
 	}
 }
